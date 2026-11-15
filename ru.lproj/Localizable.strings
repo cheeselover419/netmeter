@@ -18,3 +18,4 @@
 "Reset all statistics?" = "Сбросить всю статистику?";
 "Reset" = "Сбросить";
 "Today and total counters will be set to zero. This can't be undone." = "Счётчики за сегодня и за всё время обнулятся. Отменить это нельзя.";
+"Launch at login" = "Запускать при входе";

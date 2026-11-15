@@ -1,5 +1,6 @@
 import SwiftUI
 import Darwin
+import ServiceManagement
 
 struct Traffic: Equatable {
     var down: Int64 = 0
@@ -256,11 +257,13 @@ func amount(_ bytes: Double, bits: Bool) -> String {
 struct SettingsView: View {
     @ObservedObject var stats: Stats
     @AppStorage("bits") private var bits = false
+    @State private var autostart = SMAppService.mainApp.status == .enabled
     @State private var language = SettingsView.currentLanguage()
     @State private var confirmReset = false
 
     var body: some View {
         Form {
+            Toggle("Launch at login", isOn: Binding(get: { autostart }, set: setAutostart))
             Picker("Language", selection: Binding(get: { language }, set: setLanguage)) {
                 Text("System").tag("")
                 Text(verbatim: "English").tag("en")
@@ -283,6 +286,11 @@ struct SettingsView: View {
         } message: {
             Text("Today and total counters will be set to zero. This can't be undone.")
         }
+    }
+
+    private func setAutostart(_ on: Bool) {
+        if on { try? SMAppService.mainApp.register() } else { try? SMAppService.mainApp.unregister() }
+        autostart = SMAppService.mainApp.status == .enabled
     }
 
     // язык самого приложения, а не системы; пустая строка — как в системе
