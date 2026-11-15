@@ -1,0 +1,215 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000000000000000000001 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* main.swift */; };
+		A10000000000000000000002 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A90000000000000000000001 /* Localizable.strings */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A20000000000000000000001 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		A20000000000000000000002 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A20000000000000000000003 /* NetMeter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetMeter.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A20000000000000000000004 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		A20000000000000000000005 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A30000000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A40000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000001 /* main.swift */,
+				A20000000000000000000002 /* Info.plist */,
+				A90000000000000000000001 /* Localizable.strings */,
+				A40000000000000000000002 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A40000000000000000000002 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000003 /* NetMeter.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A50000000000000000000001 /* NetMeter */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A70000000000000000000002 /* Build configuration list for PBXNativeTarget "NetMeter" */;
+			buildPhases = (
+				A30000000000000000000001 /* Sources */,
+				A30000000000000000000002 /* Frameworks */,
+				A30000000000000000000004 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NetMeter;
+			productName = NetMeter;
+			productReference = A20000000000000000000003 /* NetMeter.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A60000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2650;
+				LastUpgradeCheck = 2650;
+			};
+			buildConfigurationList = A70000000000000000000001 /* Build configuration list for PBXProject "NetMeter" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				ru,
+				Base,
+			);
+			mainGroup = A40000000000000000000001;
+			productRefGroup = A40000000000000000000002 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A50000000000000000000001 /* NetMeter */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A30000000000000000000004 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000002 /* Localizable.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A30000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000001 /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		A90000000000000000000001 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A20000000000000000000004 /* en */,
+				A20000000000000000000005 /* ru */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		A80000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A80000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		A80000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				ENABLE_DEBUG_DYLIB = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				INFOPLIST_FILE = Info.plist;
+				OTHER_SWIFT_FLAGS = "-parse-as-library";
+				PRODUCT_BUNDLE_IDENTIFIER = local.netmeter;
+				PRODUCT_NAME = NetMeter;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A80000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				ENABLE_DEBUG_DYLIB = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				INFOPLIST_FILE = Info.plist;
+				OTHER_SWIFT_FLAGS = "-parse-as-library";
+				PRODUCT_BUNDLE_IDENTIFIER = local.netmeter;
+				PRODUCT_NAME = NetMeter;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A70000000000000000000001 /* Build configuration list for PBXProject "NetMeter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A80000000000000000000001 /* Debug */,
+				A80000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A70000000000000000000002 /* Build configuration list for PBXNativeTarget "NetMeter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A80000000000000000000003 /* Debug */,
+				A80000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A60000000000000000000001 /* Project object */;
+}

@@ -1,0 +1,12 @@
+# сборка
+build/
+*.app
+
+# Xcode
+xcuserdata/
+
+# Claude
+CLAUDE.md
+.claude/
+
+.DS_Store
