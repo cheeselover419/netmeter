@@ -85,6 +85,12 @@ final class Stats: ObservableObject {
         if up != speedUp { speedUp = up }
     }
 
+    func reset() {
+        total = Traffic()
+        today = Traffic()
+        save()
+    }
+
     func save() {
         total.save(defaults, "")
         today.save(defaults, "today.")
@@ -147,6 +153,7 @@ struct NetMeterApp: App {
 
 struct StatsView: View {
     @ObservedObject var stats: Stats
+    @AppStorage("bits") private var bits = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -178,10 +185,13 @@ struct StatsView: View {
             HStack(spacing: 14) {
                 Button("About") { showAbout() }
                 Spacer()
+                Button("Settings") { SettingsWindow.show(stats) }
+                    .keyboardShortcut(",")
                 Button("Quit") { stats.save(); NSApp.terminate(nil) }
                     .keyboardShortcut("q")
             }
             .buttonStyle(.plain)
+            .lineLimit(1)
             .font(.caption)
             .foregroundStyle(.secondary)
         }
@@ -192,16 +202,106 @@ struct StatsView: View {
     private func row(_ icon: String, _ today: Int64, _ total: Int64) -> some View {
         GridRow {
             Image(systemName: icon).foregroundStyle(.secondary).frame(width: 22)
-            Text(today.formatted(.byteCount(style: .file)))
-            Text(total.formatted(.byteCount(style: .file)))
+            Text(amount(Double(today), bits: bits))
+            Text(amount(Double(total), bits: bits))
         }
     }
 
     private func speed(_ icon: String, _ bytes: Double) -> some View {
         HStack(spacing: 6) {
             Image(systemName: icon).foregroundStyle(.secondary)
-            Text("\(Int64(bytes).formatted(.byteCount(style: .file)))/s")
+            Text("\(amount(bytes, bits: bits))/s")
         }
+    }
+}
+
+// байты как в Finder (КБ = 1000), биты так же с шагом 1000
+func amount(_ bytes: Double, bits: Bool) -> String {
+    guard bits else { return Int64(bytes).formatted(.byteCount(style: .file)) }
+    var v = bytes * 8
+    var i = 0
+    while v >= 1000 && i < 4 { v /= 1000; i += 1 }
+    let n = v.formatted(.number.precision(.fractionLength(0...(i == 0 ? 0 : 1))))
+    switch i {
+    case 0: return String(localized: "\(n) bit")
+    case 1: return String(localized: "\(n) Kbit")
+    case 2: return String(localized: "\(n) Mbit")
+    case 3: return String(localized: "\(n) Gbit")
+    default: return String(localized: "\(n) Tbit")
+    }
+}
+
+struct SettingsView: View {
+    @ObservedObject var stats: Stats
+    @AppStorage("bits") private var bits = false
+    @State private var language = SettingsView.currentLanguage()
+    @State private var confirmReset = false
+
+    var body: some View {
+        Form {
+            Picker("Language", selection: Binding(get: { language }, set: setLanguage)) {
+                Text("System").tag("")
+                Text(verbatim: "English").tag("en")
+                Text(verbatim: "Русский").tag("ru")
+            }
+            Picker("Units", selection: $bits) {
+                Text("Bytes").tag(false)
+                Text("Bits").tag(true)
+            }
+            HStack {
+                Spacer()
+                Button("Reset statistics…", role: .destructive) { confirmReset = true }
+            }
+        }
+        .formStyle(.grouped)
+        .frame(width: 360)
+        .fixedSize()
+        .confirmationDialog("Reset all statistics?", isPresented: $confirmReset) {
+            Button("Reset", role: .destructive) { stats.reset() }
+        } message: {
+            Text("Today and total counters will be set to zero. This can't be undone.")
+        }
+    }
+
+    // язык самого приложения, а не системы; пустая строка — как в системе
+    static func currentLanguage() -> String {
+        let domain = UserDefaults.standard.persistentDomain(forName: Bundle.main.bundleIdentifier ?? "")
+        return (domain?["AppleLanguages"] as? [String])?.first ?? ""
+    }
+
+    private func setLanguage(_ code: String) {
+        guard code != language else { return }
+        language = code
+        if code.isEmpty {
+            UserDefaults.standard.removeObject(forKey: "AppleLanguages")
+        } else {
+            UserDefaults.standard.set([code], forKey: "AppleLanguages")
+        }
+        // язык подхватывается только при запуске
+        stats.save()
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/bin/sh")
+        p.arguments = ["-c", "sleep 0.5; open \"$0\"", Bundle.main.bundlePath]
+        try? p.run()
+        NSApp.terminate(nil)
+    }
+}
+
+// NSWindow вместо SwiftUI Settings: тот плохо открывается из MenuBarExtra на macOS 14+
+enum SettingsWindow {
+    private static var window: NSWindow?
+
+    static func show(_ stats: Stats) {
+        if window == nil {
+            let w = NSWindow(contentViewController: NSHostingController(rootView: SettingsView(stats: stats)))
+            w.title = String(localized: "Settings")
+            w.styleMask = [.titled, .closable]
+            w.isReleasedWhenClosed = false
+            w.center()
+            window = w
+        }
+        NSApp.activate(ignoringOtherApps: true)
+        window?.makeKeyAndOrderFront(nil)
     }
 }
 
