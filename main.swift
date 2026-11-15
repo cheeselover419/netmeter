@@ -21,9 +21,14 @@ struct Traffic: Equatable {
 final class Stats: ObservableObject {
     @Published private(set) var total: Traffic
     @Published private(set) var today: Traffic
+    // средняя скорость за последние 10 с, байт/с
+    @Published private(set) var speedDown = 0.0
+    @Published private(set) var speedUp = 0.0
 
     // последние значения счётчиков системы по интерфейсам
     private var last: [String: (rx: UInt64, tx: UInt64)] = [:]
+    private var lastTime = Date()
+    private var samples: [(time: Date, dt: Double, rx: UInt64, tx: UInt64)] = []
     private var day: String
     private var ticks = 0
     private let defaults = UserDefaults.standard
@@ -49,6 +54,7 @@ final class Stats: ObservableObject {
             tx += c.tx >= p.tx ? c.tx - p.tx : c.tx
         }
         last = now
+        updateSpeed(rx, tx)
 
         let d = Stats.dayKey()
         if d != day { day = d; today = Traffic() }
@@ -60,6 +66,23 @@ final class Stats: ObservableObject {
         }
         ticks += 1
         if ticks % 5 == 0 { save() }
+    }
+
+    // реальное время между опросами, таймер может опаздывать (например, после сна)
+    private func updateSpeed(_ rx: UInt64, _ tx: UInt64) {
+        let t = Date()
+        let dt = t.timeIntervalSince(lastTime)
+        lastTime = t
+        // после сна долгий интервал занизил бы скорость
+        if dt > 10 { samples.removeAll(); return }
+        samples.append((t, dt, rx, tx))
+        samples.removeAll { t.timeIntervalSince($0.time) > 10 }
+        let span = samples.reduce(0) { $0 + $1.dt }
+        guard span > 0 else { return }
+        let down = Double(samples.reduce(0) { $0 + $1.rx }) / span
+        let up = Double(samples.reduce(0) { $0 + $1.tx }) / span
+        if down != speedDown { speedDown = down }
+        if up != speedUp { speedUp = up }
     }
 
     func save() {
@@ -143,6 +166,15 @@ struct StatsView: View {
 
             Divider()
 
+            HStack {
+                speed("arrow.down", stats.speedDown)
+                Spacer()
+                speed("arrow.up", stats.speedUp)
+            }
+            .monospacedDigit()
+
+            Divider()
+
             HStack(spacing: 14) {
                 Button("About") { showAbout() }
                 Spacer()
@@ -162,6 +194,13 @@ struct StatsView: View {
             Image(systemName: icon).foregroundStyle(.secondary).frame(width: 22)
             Text(today.formatted(.byteCount(style: .file)))
             Text(total.formatted(.byteCount(style: .file)))
+        }
+    }
+
+    private func speed(_ icon: String, _ bytes: Double) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon).foregroundStyle(.secondary)
+            Text("\(Int64(bytes).formatted(.byteCount(style: .file)))/s")
         }
     }
 }
