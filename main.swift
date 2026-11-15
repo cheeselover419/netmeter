@@ -19,11 +19,19 @@ struct Traffic: Equatable {
 }
 
 final class Stats: ObservableObject {
+    // то, что видит интерфейс; обновляется только пока панель открыта,
+    // иначе SwiftUI перекладывает скрытую панель на каждый опрос
     @Published private(set) var total: Traffic
     @Published private(set) var today: Traffic
     // средняя скорость за последние 10 с, байт/с
     @Published private(set) var speedDown = 0.0
     @Published private(set) var speedUp = 0.0
+
+    private var liveTotal: Traffic
+    private var liveToday: Traffic
+    private var liveDown = 0.0
+    private var liveUp = 0.0
+    private var panelVisible = false
 
     // последние значения счётчиков системы по интерфейсам
     private var last: [String: (rx: UInt64, tx: UInt64)] = [:]
@@ -34,13 +42,27 @@ final class Stats: ObservableObject {
     private let defaults = UserDefaults.standard
 
     init() {
-        total = Traffic(defaults, "")
+        liveTotal = Traffic(defaults, "")
         day = Stats.dayKey()
-        today = defaults.string(forKey: "today.day") == day ? Traffic(defaults, "today.") : Traffic()
+        liveToday = defaults.string(forKey: "today.day") == day ? Traffic(defaults, "today.") : Traffic()
+        total = liveTotal
+        today = liveToday
         last = Stats.readCounters()
         let t = Timer(timeInterval: 2, repeats: true) { [weak self] _ in self?.poll() }
         t.tolerance = 0.5
         RunLoop.main.add(t, forMode: .common)
+    }
+
+    func setPanelVisible(_ visible: Bool) {
+        panelVisible = visible
+        if visible { publish() }
+    }
+
+    private func publish() {
+        if total != liveTotal { total = liveTotal }
+        if today != liveToday { today = liveToday }
+        if speedDown != liveDown { speedDown = liveDown }
+        if speedUp != liveUp { speedUp = liveUp }
     }
 
     private func poll() {
@@ -57,13 +79,12 @@ final class Stats: ObservableObject {
         updateSpeed(rx, tx)
 
         let d = Stats.dayKey()
-        if d != day { day = d; today = Traffic() }
-        if rx > 0 || tx > 0 {
-            total.down += Int64(rx)
-            total.up += Int64(tx)
-            today.down += Int64(rx)
-            today.up += Int64(tx)
-        }
+        if d != day { day = d; liveToday = Traffic() }
+        liveTotal.down += Int64(rx)
+        liveTotal.up += Int64(tx)
+        liveToday.down += Int64(rx)
+        liveToday.up += Int64(tx)
+        if panelVisible { publish() }
         ticks += 1
         if ticks % 5 == 0 { save() }
     }
@@ -79,21 +100,20 @@ final class Stats: ObservableObject {
         samples.removeAll { t.timeIntervalSince($0.time) > 10 }
         let span = samples.reduce(0) { $0 + $1.dt }
         guard span > 0 else { return }
-        let down = Double(samples.reduce(0) { $0 + $1.rx }) / span
-        let up = Double(samples.reduce(0) { $0 + $1.tx }) / span
-        if down != speedDown { speedDown = down }
-        if up != speedUp { speedUp = up }
+        liveDown = Double(samples.reduce(0) { $0 + $1.rx }) / span
+        liveUp = Double(samples.reduce(0) { $0 + $1.tx }) / span
     }
 
     func reset() {
-        total = Traffic()
-        today = Traffic()
+        liveTotal = Traffic()
+        liveToday = Traffic()
         save()
+        publish()
     }
 
     func save() {
-        total.save(defaults, "")
-        today.save(defaults, "today.")
+        liveTotal.save(defaults, "")
+        liveToday.save(defaults, "today.")
         defaults.set(day, forKey: "today.day")
     }
 
@@ -197,6 +217,8 @@ struct StatsView: View {
         }
         .padding(16)
         .frame(width: 250)
+        .onAppear { stats.setPanelVisible(true) }
+        .onDisappear { stats.setPanelVisible(false) }
     }
 
     private func row(_ icon: String, _ today: Int64, _ total: Int64) -> some View {
